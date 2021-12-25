@@ -24,14 +24,7 @@
  */
 package com.wildyplayerindicators;
 
-import com.google.inject.Provides;
-import java.awt.Color;
-import javax.inject.Inject;
-import lombok.Value;
-import net.runelite.api.Client;
-import net.runelite.api.FriendsChatRank;
-import static net.runelite.api.FriendsChatRank.UNRANKED;
-import net.runelite.api.MenuAction;
+import static com.wildyplayerindicators.WildyPlayerIndicatorsService.WILDERNESS_LEVEL_PATTERN;
 import static net.runelite.api.MenuAction.ITEM_USE_ON_PLAYER;
 import static net.runelite.api.MenuAction.PLAYER_EIGTH_OPTION;
 import static net.runelite.api.MenuAction.PLAYER_FIFTH_OPTION;
@@ -44,17 +37,30 @@ import static net.runelite.api.MenuAction.PLAYER_THIRD_OPTION;
 import static net.runelite.api.MenuAction.RUNELITE_PLAYER;
 import static net.runelite.api.MenuAction.SPELL_CAST_ON_PLAYER;
 import static net.runelite.api.MenuAction.WALK;
+
+import java.awt.Color;
+import java.util.regex.Matcher;
+
+import javax.inject.Inject;
+
+import com.google.inject.Provides;
+
+import lombok.Value;
+import net.runelite.api.Client;
+import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
-import net.runelite.api.clan.ClanTitle;
+import net.runelite.api.WorldType;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.util.ColorUtil;
+import net.runelite.client.util.ColorUtil;;
 
 @PluginDescriptor(
 	name = "Wildy Player Indicators",
@@ -158,78 +164,92 @@ public class WildyPlayerIndicatorsPlugin extends Plugin
 					continue;
 				}
 
-				Decorations decorations = getDecorations(player);
+				Color color = getDecorations(player);
 
-				if (decorations == null)
+				if (color == null)
 				{
 					continue;
 				}
 
 				String oldTarget = entry.getTarget();
-				String newTarget = decorateTarget(oldTarget, decorations);
+				String newTarget = decorateTarget(oldTarget, color);
 
 				entry.setTarget(newTarget);
 			}
 		}
 	}
 
-	private Decorations getDecorations(Player player)
+	private Color getDecorations(Player player)
 	{
-		int image = -1;
-		Color color = null;
-
-		if (player.isFriend() && config.highlightFriends())
-		{
-			color = config.getFriendColor();
-		}
-		else if (player.isFriendsChatMember() && config.highlightFriendsChat())
-		{
-			color = config.getFriendsChatMemberColor();
-
-			if (config.showFriendsChatRanks())
-			{
-				FriendsChatRank rank = playerIndicatorsService.getFriendsChatRank(player);
-				if (rank != UNRANKED)
-				{
-					image = chatIconManager.getIconNumber(rank);
-				}
-			}
-		}
-		else if (player.getTeam() > 0 && client.getLocalPlayer().getTeam() == player.getTeam() && config.highlightTeamMembers())
-		{
-			color = config.getTeamMemberColor();
-		}
-		else if (player.isClanMember() && config.highlightClanMembers())
-		{
-			color = config.getClanMemberColor();
-
-			if (config.showClanChatRanks())
-			{
-				ClanTitle clanTitle = playerIndicatorsService.getClanTitle(player);
-				if (clanTitle != null)
-				{
-					image = chatIconManager.getIconNumber(clanTitle);
-				}
-			}
-		}
-		else if (!player.isFriendsChatMember() && !player.isClanMember() && config.highlightOthers())
-		{
-			color = config.getOthersColor();
-		}
-
-		if (image == -1 && color == null)
+		final Widget wildernessLevelWidget = client.getWidget(WidgetInfo.PVP_WILDERNESS_LEVEL);
+		if (wildernessLevelWidget == null)
 		{
 			return null;
 		}
 
-		return new Decorations(image, color);
+		final String wildernessLevelText = wildernessLevelWidget.getText();
+		final Matcher m = WILDERNESS_LEVEL_PATTERN.matcher(wildernessLevelText);
+		if (!m.matches()
+			|| WorldType.isPvpWorld(client.getWorldType()))
+		{
+			return null;
+		}
+
+		final Player localPlayer = client.getLocalPlayer();
+
+		final int wildernessLevel = Integer.parseInt(m.group(1));
+		final int localPlayerLevel = localPlayer.getCombatLevel();
+		final int minAttackableLevel = localPlayerLevel - wildernessLevel;
+		final int maxAttackableLevel = localPlayerLevel + wildernessLevel;
+		final int minNearAttackableLevel = localPlayerLevel - wildernessLevel - config.nearAttackableTolerance();
+		final int maxNearAttackableLevel = localPlayerLevel + wildernessLevel + config.nearAttackableTolerance();
+
+		if (player == null || player.getName() == null)
+		{
+			return null;
+		}
+
+		boolean isFriendsChatMember = player.isFriendsChatMember();
+		boolean isClanMember = player.isClanMember();
+
+		if (player == localPlayer)
+		{
+			return null;
+		}
+		else if (config.excludeFriends() && player.isFriend())
+		{
+			return null;
+		}
+		else if (config.excludeFriendsChat() && isFriendsChatMember)
+		{
+			return null;
+		}
+		else if (config.excludeTeamMembers() && localPlayer.getTeam() > 0 && localPlayer.getTeam() == player.getTeam())
+		{
+			return null;
+		}
+		else if (config.excludeClanMembers() && isClanMember)
+		{
+			return null;
+		}
+
+		final int otherLevel = player.getCombatLevel();
+		if (otherLevel <= maxAttackableLevel && otherLevel >= minAttackableLevel) {
+			return config.getAttackableColor();
+		}
+		if (config.highlightNearAttackable() 
+					&& otherLevel <= maxNearAttackableLevel && otherLevel >= minNearAttackableLevel) {
+			return config.getNearAttackableColor();
+		}
+
+		return null;
 	}
 
-	private String decorateTarget(String oldTarget, Decorations decorations)
+	private String decorateTarget(String oldTarget, Color color)
 	{
 		String newTarget = oldTarget;
 
-		if (decorations.getColor() != null && config.colorPlayerMenu())
+		if (color != null && config.colorPlayerMenu())
 		{
 			// strip out existing <col...
 			int idx = oldTarget.indexOf('>');
@@ -238,21 +258,9 @@ public class WildyPlayerIndicatorsPlugin extends Plugin
 				newTarget = oldTarget.substring(idx + 1);
 			}
 
-			newTarget = ColorUtil.prependColorTag(newTarget, decorations.getColor());
-		}
-
-		if (decorations.getImage() != -1)
-		{
-			newTarget = "<img=" + decorations.getImage() + ">" + newTarget;
+			newTarget = ColorUtil.prependColorTag(newTarget, color);
 		}
 
 		return newTarget;
-	}
-
-	@Value
-	private static class Decorations
-	{
-		private final int image;
-		private final Color color;
 	}
 }

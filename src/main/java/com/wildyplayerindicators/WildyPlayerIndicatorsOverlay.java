@@ -109,50 +109,6 @@ public class WildyPlayerIndicatorsOverlay extends Overlay
 			return;
 		}
 
-		BufferedImage rankImage = null;
-		if (actor.isFriendsChatMember() && config.highlightFriendsChat() && config.showFriendsChatRanks())
-		{
-			final FriendsChatRank rank = playerIndicatorsService.getFriendsChatRank(actor);
-
-			if (rank != FriendsChatRank.UNRANKED)
-			{
-				rankImage = chatIconManager.getRankImage(rank);
-			}
-		}
-		else if (actor.isClanMember() && config.highlightClanMembers() && config.showClanChatRanks())
-		{
-			ClanTitle clanTitle = playerIndicatorsService.getClanTitle(actor);
-			if (clanTitle != null)
-			{
-				rankImage = chatIconManager.getRankImage(clanTitle);
-			}
-		}
-
-		if (rankImage != null)
-		{
-			final int imageWidth = rankImage.getWidth();
-			final int imageTextMargin;
-			final int imageNegativeMargin;
-
-			if (drawPlayerNamesConfig == PlayerNameLocation.MODEL_RIGHT)
-			{
-				imageTextMargin = imageWidth;
-				imageNegativeMargin = 0;
-			}
-			else
-			{
-				imageTextMargin = imageWidth / 2;
-				imageNegativeMargin = imageWidth / 2;
-			}
-
-			final int textHeight = graphics.getFontMetrics().getHeight() - graphics.getFontMetrics().getMaxDescent();
-			final Point imageLocation = new Point(textLocation.getX() - imageNegativeMargin - 1, textLocation.getY() - textHeight / 2 - rankImage.getHeight() / 2);
-			OverlayUtil.renderImageLocation(graphics, imageLocation, rankImage);
-
-			// move text
-			textLocation = new Point(textLocation.getX() + imageTextMargin, textLocation.getY());
-		}
-
 		OverlayUtil.renderTextLocation(graphics, textLocation, name, color);
 	}
 }

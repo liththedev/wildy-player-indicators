@@ -26,6 +26,9 @@ package com.wildyplayerindicators;
 
 import java.awt.Color;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.runelite.api.Client;
@@ -33,16 +36,21 @@ import net.runelite.api.FriendsChatManager;
 import net.runelite.api.FriendsChatMember;
 import net.runelite.api.FriendsChatRank;
 import net.runelite.api.Player;
+import net.runelite.api.WorldType;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.clan.ClanRank;
 import net.runelite.api.clan.ClanSettings;
 import net.runelite.api.clan.ClanTitle;
+import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.util.Text;
 
 @Singleton
 public class WildyPlayerIndicatorsService
 {
+	public static final Pattern WILDERNESS_LEVEL_PATTERN = Pattern.compile("^Level: (\\d+)$");
+
 	private final Client client;
 	private final WildyPlayerIndicatorsConfig config;
 
@@ -55,14 +63,28 @@ public class WildyPlayerIndicatorsService
 
 	public void forEachPlayer(final BiConsumer<Player, Color> consumer)
 	{
-		if (!config.highlightOwnPlayer() && !config.highlightFriendsChat()
-			&& !config.highlightFriends() && !config.highlightOthers()
-			&& !config.highlightClanMembers())
+		final Player localPlayer = client.getLocalPlayer();
+
+		final Widget wildernessLevelWidget = client.getWidget(WidgetInfo.PVP_WILDERNESS_LEVEL);
+		if (wildernessLevelWidget == null)
 		{
 			return;
 		}
 
-		final Player localPlayer = client.getLocalPlayer();
+		final String wildernessLevelText = wildernessLevelWidget.getText();
+		final Matcher m = WILDERNESS_LEVEL_PATTERN.matcher(wildernessLevelText);
+		if (!m.matches()
+			|| WorldType.isPvpWorld(client.getWorldType()))
+		{
+			return;
+		}
+
+		final int wildernessLevel = Integer.parseInt(m.group(1));
+		final int localPlayerLevel = localPlayer.getCombatLevel();
+		final int minAttackableLevel = localPlayerLevel - wildernessLevel;
+		final int maxAttackableLevel = localPlayerLevel + wildernessLevel;
+		final int minNearAttackableLevel = localPlayerLevel - wildernessLevel - config.nearAttackableTolerance();
+		final int maxNearAttackableLevel = localPlayerLevel + wildernessLevel + config.nearAttackableTolerance();
 
 		for (Player player : client.getPlayers())
 		{
@@ -76,30 +98,32 @@ public class WildyPlayerIndicatorsService
 
 			if (player == localPlayer)
 			{
-				if (config.highlightOwnPlayer())
-				{
-					consumer.accept(player, config.getOwnPlayerColor());
-				}
+				continue;
 			}
-			else if (config.highlightFriends() && player.isFriend())
+			else if (config.excludeFriends() && player.isFriend())
 			{
-				consumer.accept(player, config.getFriendColor());
+				continue;
 			}
-			else if (config.highlightFriendsChat() && isFriendsChatMember)
+			else if (config.excludeFriendsChat() && isFriendsChatMember)
 			{
-				consumer.accept(player, config.getFriendsChatMemberColor());
+				continue;
 			}
-			else if (config.highlightTeamMembers() && localPlayer.getTeam() > 0 && localPlayer.getTeam() == player.getTeam())
+			else if (config.excludeTeamMembers() && localPlayer.getTeam() > 0 && localPlayer.getTeam() == player.getTeam())
 			{
-				consumer.accept(player, config.getTeamMemberColor());
+				continue;
 			}
-			else if (config.highlightClanMembers() && isClanMember)
+			else if (config.excludeClanMembers() && isClanMember)
 			{
-				consumer.accept(player, config.getClanMemberColor());
+				continue;
 			}
-			else if (config.highlightOthers() && !isFriendsChatMember && !isClanMember)
-			{
-				consumer.accept(player, config.getOthersColor());
+
+			final int otherLevel = player.getCombatLevel();
+			if (otherLevel <= maxAttackableLevel && otherLevel >= minAttackableLevel) {
+				consumer.accept(player, config.getAttackableColor());
+			}
+			if (config.highlightNearAttackable() 
+						&& otherLevel <= maxNearAttackableLevel && otherLevel >= minNearAttackableLevel) {
+				consumer.accept(player, config.getNearAttackableColor());
 			}
 		}
 	}

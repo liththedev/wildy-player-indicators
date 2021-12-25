@@ -79,6 +79,50 @@ public interface WildyPlayerIndicatorsConfig extends Config
 
 	@ConfigItem(
 		position = 5,
+		keyName = "excludeFriends",
+		name = "Exclude Friends",
+		description = "Hide indicators for Friends"
+	)
+	default boolean excludeFriends()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		position = 6,
+		keyName = "excludeFriendsChat",
+		name = "Exclude Friends Chat",
+		description = "Hide indicators for Friends Chat"
+	)
+	default boolean excludeFriendsChat()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		position = 7,
+		keyName = "excludeTeamMembers",
+		name = "Exclude Team Members",
+		description = "Hide indicators for Team Members"
+	)
+	default boolean excludeTeamMembers()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		position = 8,
+		keyName = "excludeClanMembers",
+		name = "Exclude Clan Members",
+		description = "Hide indicators for Clan Members"
+	)
+	default boolean excludeClanMembers()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		position = 9,
 		keyName = "attackableColor",
 		name = "Attackable",
 		description = "Color of attackable players' names"
@@ -89,7 +133,7 @@ public interface WildyPlayerIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 6,
+		position = 10,
 		keyName = "drawNearAttackableNames",
 		name = "Highlight nearly attackable players",
 		description = "Configures whether or not nearly attackable players should be highlighted"
@@ -100,7 +144,7 @@ public interface WildyPlayerIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 7,
+		position = 11,
 		keyName = "nearAttackableTolerance",
 		name = "Nearly attackable tolerance",
 		description = "Configures how near a players level can be to be highlighted"
@@ -111,7 +155,7 @@ public interface WildyPlayerIndicatorsConfig extends Config
 	}
 
 	@ConfigItem(
-		position = 8,
+		position = 12,
 		keyName = "nearAttackableColor",
 		name = "NearAttackable",
 		description = "Color of nearly attackable players' names"
