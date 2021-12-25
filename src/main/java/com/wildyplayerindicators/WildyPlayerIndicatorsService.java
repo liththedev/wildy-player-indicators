@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import net.runelite.api.Client;
 import net.runelite.api.FriendsChatManager;
 import net.runelite.api.FriendsChatMember;
@@ -49,7 +50,7 @@ import net.runelite.client.util.Text;
 @Singleton
 public class WildyPlayerIndicatorsService
 {
-	public static final Pattern WILDERNESS_LEVEL_PATTERN = Pattern.compile("^Level: (\\d+)$");
+	public static final Pattern WILDERNESS_LEVEL_PATTERN = Pattern.compile("^Level: (\\d+).*$");
 
 	private final Client client;
 	private final WildyPlayerIndicatorsConfig config;
@@ -121,7 +122,7 @@ public class WildyPlayerIndicatorsService
 			if (otherLevel <= maxAttackableLevel && otherLevel >= minAttackableLevel) {
 				consumer.accept(player, config.getAttackableColor());
 			}
-			if (config.highlightNearAttackable() 
+			else if (config.highlightNearAttackable() 
 						&& otherLevel <= maxNearAttackableLevel && otherLevel >= minNearAttackableLevel) {
 				consumer.accept(player, config.getNearAttackableColor());
 			}

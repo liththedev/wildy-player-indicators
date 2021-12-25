@@ -1,6 +1,4 @@
-package com.example;
-
-import com.wildyplayerindicators.WildyPlayerIndicatorsPlugin;
+package com.wildyplayerindicators;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
