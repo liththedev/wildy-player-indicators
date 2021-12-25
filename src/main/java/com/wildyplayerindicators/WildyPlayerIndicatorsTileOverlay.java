@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Jordan Atwood <nightfirecat@protonmail.com>
+ * Copyright (c) 2018, Kamiel <https://github.com/Kamielvf>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,24 +22,52 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.playerindicators;
 
-import lombok.AllArgsConstructor;
+package com.wildyplayerindicators;
 
-@AllArgsConstructor
-public enum PlayerNameLocation
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import javax.inject.Inject;
+import net.runelite.client.ui.overlay.Overlay;
+import net.runelite.client.ui.overlay.OverlayLayer;
+import net.runelite.client.ui.overlay.OverlayPosition;
+import net.runelite.client.ui.overlay.OverlayPriority;
+import net.runelite.client.ui.overlay.OverlayUtil;
+
+public class WildyPlayerIndicatorsTileOverlay extends Overlay
 {
+	private final WildyPlayerIndicatorsService playerIndicatorsService;
+	private final WildyPlayerIndicatorsConfig config;
 
-	DISABLED("Disabled"),
-	ABOVE_HEAD("Above head"),
-	MODEL_CENTER("Center of model"),
-	MODEL_RIGHT("Right of model");
-
-	private final String name;
+	@Inject
+	private WildyPlayerIndicatorsTileOverlay(WildyPlayerIndicatorsConfig config, WildyPlayerIndicatorsService playerIndicatorsService)
+	{
+		this.config = config;
+		this.playerIndicatorsService = playerIndicatorsService;
+		setLayer(OverlayLayer.ABOVE_SCENE);
+		setPosition(OverlayPosition.DYNAMIC);
+		setPriority(OverlayPriority.MED);
+	}
 
 	@Override
-	public String toString()
+	public Dimension render(Graphics2D graphics)
 	{
-		return name;
+		if (!config.drawTiles())
+		{
+			return null;
+		}
+
+		playerIndicatorsService.forEachPlayer((player, color) ->
+		{
+			final Polygon poly = player.getCanvasTilePoly();
+
+			if (poly != null)
+			{
+				OverlayUtil.renderPolygon(graphics, poly, color);
+			}
+		});
+
+		return null;
 	}
 }

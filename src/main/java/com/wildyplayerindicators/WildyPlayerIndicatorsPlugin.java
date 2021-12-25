@@ -22,7 +22,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.playerindicators;
+package com.wildyplayerindicators;
 
 import com.google.inject.Provides;
 import java.awt.Color;
@@ -57,29 +57,29 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ColorUtil;
 
 @PluginDescriptor(
-	name = "Player Indicators",
-	description = "Highlight players on-screen and/or on the minimap",
-	tags = {"highlight", "minimap", "overlay", "players"}
+	name = "Wildy Player Indicators",
+	description = "Highlight players in the wilderness on-screen and/or on the minimap",
+	tags = {"highlight", "minimap", "overlay", "players", "wilderness"}
 )
-public class PlayerIndicatorsPlugin extends Plugin
+public class WildyPlayerIndicatorsPlugin extends Plugin
 {
 	@Inject
 	private OverlayManager overlayManager;
 
 	@Inject
-	private PlayerIndicatorsConfig config;
+	private WildyPlayerIndicatorsConfig config;
 
 	@Inject
-	private PlayerIndicatorsOverlay playerIndicatorsOverlay;
+	private WildyPlayerIndicatorsOverlay playerIndicatorsOverlay;
 
 	@Inject
-	private PlayerIndicatorsTileOverlay playerIndicatorsTileOverlay;
+	private WildyPlayerIndicatorsTileOverlay playerIndicatorsTileOverlay;
 
 	@Inject
-	private PlayerIndicatorsMinimapOverlay playerIndicatorsMinimapOverlay;
+	private WildyPlayerIndicatorsMinimapOverlay playerIndicatorsMinimapOverlay;
 
 	@Inject
-	private PlayerIndicatorsService playerIndicatorsService;
+	private WildyPlayerIndicatorsService playerIndicatorsService;
 
 	@Inject
 	private Client client;
@@ -88,9 +88,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 	private ChatIconManager chatIconManager;
 
 	@Provides
-	PlayerIndicatorsConfig provideConfig(ConfigManager configManager)
+	WildyPlayerIndicatorsConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(PlayerIndicatorsConfig.class);
+		return configManager.getConfig(WildyPlayerIndicatorsConfig.class);
 	}
 
 	@Override

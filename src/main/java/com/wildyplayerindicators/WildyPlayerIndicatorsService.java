@@ -22,7 +22,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.playerindicators;
+package com.wildyplayerindicators;
 
 import java.awt.Color;
 import java.util.function.BiConsumer;
@@ -41,13 +41,13 @@ import net.runelite.api.clan.ClanTitle;
 import net.runelite.client.util.Text;
 
 @Singleton
-public class PlayerIndicatorsService
+public class WildyPlayerIndicatorsService
 {
 	private final Client client;
-	private final PlayerIndicatorsConfig config;
+	private final WildyPlayerIndicatorsConfig config;
 
 	@Inject
-	private PlayerIndicatorsService(Client client, PlayerIndicatorsConfig config)
+	private WildyPlayerIndicatorsService(Client client, WildyPlayerIndicatorsConfig config)
 	{
 		this.config = config;
 		this.client = client;

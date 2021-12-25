@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Kamiel <https://github.com/Kamielvf>
+ * Copyright (c) 2019, Jordan Atwood <nightfirecat@protonmail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,52 +22,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.wildyplayerindicators;
 
-package net.runelite.client.plugins.playerindicators;
+import lombok.AllArgsConstructor;
 
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import javax.inject.Inject;
-import net.runelite.client.ui.overlay.Overlay;
-import net.runelite.client.ui.overlay.OverlayLayer;
-import net.runelite.client.ui.overlay.OverlayPosition;
-import net.runelite.client.ui.overlay.OverlayPriority;
-import net.runelite.client.ui.overlay.OverlayUtil;
-
-public class PlayerIndicatorsTileOverlay extends Overlay
+@AllArgsConstructor
+public enum PlayerNameLocation
 {
-	private final PlayerIndicatorsService playerIndicatorsService;
-	private final PlayerIndicatorsConfig config;
 
-	@Inject
-	private PlayerIndicatorsTileOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService)
-	{
-		this.config = config;
-		this.playerIndicatorsService = playerIndicatorsService;
-		setLayer(OverlayLayer.ABOVE_SCENE);
-		setPosition(OverlayPosition.DYNAMIC);
-		setPriority(OverlayPriority.MED);
-	}
+	DISABLED("Disabled"),
+	ABOVE_HEAD("Above head"),
+	MODEL_CENTER("Center of model"),
+	MODEL_RIGHT("Right of model");
+
+	private final String name;
 
 	@Override
-	public Dimension render(Graphics2D graphics)
+	public String toString()
 	{
-		if (!config.drawTiles())
-		{
-			return null;
-		}
-
-		playerIndicatorsService.forEachPlayer((player, color) ->
-		{
-			final Polygon poly = player.getCanvasTilePoly();
-
-			if (poly != null)
-			{
-				OverlayUtil.renderPolygon(graphics, poly, color);
-			}
-		});
-
-		return null;
+		return name;
 	}
 }

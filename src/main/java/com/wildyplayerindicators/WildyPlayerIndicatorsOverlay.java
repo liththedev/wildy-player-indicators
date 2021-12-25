@@ -23,7 +23,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.playerindicators;
+package com.wildyplayerindicators;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -43,17 +43,17 @@ import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.util.Text;
 
 @Singleton
-public class PlayerIndicatorsOverlay extends Overlay
+public class WildyPlayerIndicatorsOverlay extends Overlay
 {
 	private static final int ACTOR_OVERHEAD_TEXT_MARGIN = 40;
 	private static final int ACTOR_HORIZONTAL_TEXT_MARGIN = 10;
 
-	private final PlayerIndicatorsService playerIndicatorsService;
-	private final PlayerIndicatorsConfig config;
+	private final WildyPlayerIndicatorsService playerIndicatorsService;
+	private final WildyPlayerIndicatorsConfig config;
 	private final ChatIconManager chatIconManager;
 
 	@Inject
-	private PlayerIndicatorsOverlay(PlayerIndicatorsConfig config, PlayerIndicatorsService playerIndicatorsService,
+	private WildyPlayerIndicatorsOverlay(WildyPlayerIndicatorsConfig config, WildyPlayerIndicatorsService playerIndicatorsService,
 		ChatIconManager chatIconManager)
 	{
 		this.config = config;
