@@ -45,7 +45,6 @@ import javax.inject.Inject;
 
 import com.google.inject.Provides;
 
-import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
@@ -56,7 +55,6 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -85,13 +83,7 @@ public class WildyPlayerIndicatorsPlugin extends Plugin
 	private WildyPlayerIndicatorsMinimapOverlay playerIndicatorsMinimapOverlay;
 
 	@Inject
-	private WildyPlayerIndicatorsService playerIndicatorsService;
-
-	@Inject
 	private Client client;
-
-	@Inject
-	private ChatIconManager chatIconManager;
 
 	@Provides
 	WildyPlayerIndicatorsConfig provideConfig(ConfigManager configManager)

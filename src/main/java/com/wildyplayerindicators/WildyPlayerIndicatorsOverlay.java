@@ -28,14 +28,10 @@ package com.wildyplayerindicators;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import net.runelite.api.FriendsChatRank;
 import net.runelite.api.Player;
 import net.runelite.api.Point;
-import net.runelite.api.clan.ClanTitle;
-import net.runelite.client.game.ChatIconManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
@@ -50,15 +46,12 @@ public class WildyPlayerIndicatorsOverlay extends Overlay
 
 	private final WildyPlayerIndicatorsService playerIndicatorsService;
 	private final WildyPlayerIndicatorsConfig config;
-	private final ChatIconManager chatIconManager;
 
 	@Inject
-	private WildyPlayerIndicatorsOverlay(WildyPlayerIndicatorsConfig config, WildyPlayerIndicatorsService playerIndicatorsService,
-		ChatIconManager chatIconManager)
+	private WildyPlayerIndicatorsOverlay(WildyPlayerIndicatorsConfig config, WildyPlayerIndicatorsService playerIndicatorsService)
 	{
 		this.config = config;
 		this.playerIndicatorsService = playerIndicatorsService;
-		this.chatIconManager = chatIconManager;
 		setPosition(OverlayPosition.DYNAMIC);
 		setPriority(OverlayPriority.MED);
 	}
